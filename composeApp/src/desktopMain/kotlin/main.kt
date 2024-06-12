@@ -6,6 +6,6 @@ fun main() = application {
         onCloseRequest = ::exitApplication,
         title = "Loop",
     ) {
-        App()
+        NostrExample()
     }
 }

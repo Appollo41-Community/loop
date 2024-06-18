@@ -1,7 +1,6 @@
 package com.appollo41.loop
 
 import Greeting
-import SERVER_PORT
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*

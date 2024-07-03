@@ -58,11 +58,14 @@ kotlin {
             implementation(libs.androidx.activity.compose)
             implementation(libs.secp256k1.kmp.jni.android)
             implementation(libs.ktor.client.okhttp)
+
+            //Koin
+            implementation(libs.koin.androidx.compose)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(compose.foundation)
-            implementation(compose.material)
+            implementation(compose.material3)
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
@@ -85,6 +88,7 @@ kotlin {
             // Koin
             implementation(project.dependencies.platform(libs.koin.bom))
             implementation(libs.koin.core)
+            implementation(libs.koin.compose)
 
             // Crypto
             implementation(libs.secp256k1.kmp)

@@ -21,7 +21,7 @@ import kotlinx.serialization.json.JsonObject
 
 class SocketClient(
     private val url: String,
-    private val httpClient: HttpClient = NetworkingModule.httpClient,
+    private val httpClient: HttpClient,
 ) {
     private val scope = CoroutineScope(Dispatchers.IO)
 

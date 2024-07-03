@@ -1,7 +1,11 @@
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import com.appollo41.loop.di.KoinInitializer
 
 fun main() = application {
+
+    KoinInitializer().init()
+
     Window(
         onCloseRequest = ::exitApplication,
         title = "Loop",

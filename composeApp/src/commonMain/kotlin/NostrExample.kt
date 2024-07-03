@@ -37,16 +37,14 @@ import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.koin.compose.koinInject
 
 @Composable
 @Preview
-fun NostrExample() {
+fun NostrExample(
+    socketClient: SocketClient = koinInject()
+) {
     val subscriptionId by remember { mutableStateOf(generateRandomString()) }
-    val socketClient by remember { mutableStateOf(
-        SocketClient(
-            url = "wss://relay.primal.net",
-        )
-    ) }
     var connected by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 

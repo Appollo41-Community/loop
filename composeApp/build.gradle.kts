@@ -1,6 +1,7 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -8,6 +9,8 @@ plugins {
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.kotlinxSerialization)
+    alias(libs.plugins.kspCompose)
+    alias(libs.plugins.room)
 }
 
 kotlin {
@@ -27,7 +30,11 @@ kotlin {
 //        }
 //        binaries.executable()
 //    }
-    
+
+    sourceSets.commonMain {
+        kotlin.srcDir("build/generated/ksp/metadata")
+    }
+
     androidTarget {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
@@ -58,6 +65,9 @@ kotlin {
             implementation(libs.androidx.activity.compose)
             implementation(libs.secp256k1.kmp.jni.android)
             implementation(libs.ktor.client.okhttp)
+
+            //Room
+            implementation(libs.room.runtime.android)
 
             //Koin
             implementation(libs.koin.androidx.compose)
@@ -98,6 +108,10 @@ kotlin {
 
             // Data&Time
             implementation(libs.kotlinx.datetime)
+
+            // Room
+            implementation(libs.room.runtime)
+            implementation(libs.sqlite.bundled)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
@@ -155,5 +169,19 @@ compose.desktop {
             packageName = "com.appollo41.loop"
             packageVersion = "1.0.0"
         }
+    }
+}
+
+dependencies {
+    add("kspCommonMainMetadata", libs.room.compiler)
+}
+
+room {
+    schemaDirectory("$projectDir/schemas")
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinCompile<*>>().configureEach {
+    if (name != "kspCommonMainKotlinMetadata" ) {
+        dependsOn("kspCommonMainKotlinMetadata")
     }
 }

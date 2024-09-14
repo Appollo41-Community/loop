@@ -25,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.appollo41.loop.core.generateRandomString
+import com.appollo41.loop.db.AppDatabase
 import com.appollo41.loop.db.NoteDao
 import com.appollo41.loop.db.Note
 import com.appollo41.loop.networking.NostrEvent
@@ -54,6 +55,8 @@ fun NostrExample(
     val subscriptionId by remember { mutableStateOf(generateRandomString()) }
     var connected by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
+
+    val daoNew = koinInject<AppDatabase> ().getDao()
 
     suspend fun connectToRelay() {
         socketClient.connect()
@@ -97,11 +100,11 @@ fun NostrExample(
             )
 
             userList.forEach {
-                dao.upsert(it)
+                daoNew.upsert(it)
             }
         }
 
-        val notess by dao.getAllNotes().collectAsState(initial = emptyList())
+        val notess by daoNew.getAllNotes().collectAsState(initial = emptyList())
         val scope = rememberCoroutineScope()
 
 
@@ -118,7 +121,7 @@ fun NostrExample(
                         .fillMaxWidth()
                         .clickable {
                             scope.launch {
-                                dao.delete(note)
+                                daoNew.delete(note)
                             }
                         }
                         .padding(16.dp)

@@ -1,9 +1,12 @@
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -11,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -21,6 +25,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.appollo41.loop.core.generateRandomString
+import com.appollo41.loop.db.AppDatabase
+import com.appollo41.loop.db.Note
 import com.appollo41.loop.networking.NostrEvent
 import com.appollo41.loop.networking.NostrIncomingMessage
 import com.appollo41.loop.networking.SocketClient
@@ -42,11 +48,13 @@ import org.koin.compose.koinInject
 @Composable
 @Preview
 fun NostrExample(
-    socketClient: SocketClient = koinInject()
+    socketClient: SocketClient = koinInject(),
+    daoNewTest: AppDatabase = koinInject()
 ) {
     val subscriptionId by remember { mutableStateOf(generateRandomString()) }
     var connected by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
+
+    val daoNew = daoNewTest.getDao()
 
     suspend fun connectToRelay() {
         socketClient.connect()
@@ -77,7 +85,48 @@ fun NostrExample(
             }
     }
 
+
+
     MaterialTheme {
+
+        LaunchedEffect(true) {
+
+            val userList = listOf(
+                Note(title = "Test1", content = "TestCnt1", createdAt = 1L, updatedAt = 1L),
+                Note(title = "Test12", content = "TestCnt12", createdAt = 2L, updatedAt = 2L),
+                Note(title = "Test13", content = "TestCnt13", createdAt = 3L, updatedAt = 3L)
+            )
+
+            userList.forEach {
+                daoNew.upsert(it)
+            }
+        }
+
+        val notess by daoNew.getAllNotes().collectAsState(initial = emptyList())
+        val scope = rememberCoroutineScope()
+
+
+
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize(),
+            contentPadding = PaddingValues(16.dp)
+        ) {
+            items(notess) { note ->
+                Text(
+                    text = note.title + " " + note.content,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            scope.launch {
+                                daoNew.delete(note)
+                            }
+                        }
+                        .padding(16.dp)
+                )
+            }
+        }
+
         Column(
             modifier = Modifier.fillMaxSize(),
         ) {

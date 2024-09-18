@@ -1,11 +1,11 @@
 import androidx.compose.runtime.remember
 import androidx.compose.ui.window.ComposeUIViewController
 import com.appollo41.loop.db.getDatabaseBuilder
-import com.appollo41.loop.di.KoinInitializer
+import com.appollo41.loop.di.initKoin
 
 fun MainViewController() = ComposeUIViewController (
     configure = {
-        KoinInitializer().init()
+        initKoin()
     }
 ) {
     val dao = remember {

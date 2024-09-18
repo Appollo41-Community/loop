@@ -6,15 +6,15 @@ import com.appollo41.loop.di.modules.sharedModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 
-actual class KoinInitializer(
-    private val context: Context
-) {
-    actual fun init() {
-        startKoin {
-            androidContext(context)
-            modules(
-                sharedModule, platformModule()
-            )
-        }
-    }
-}
+//actual class KoinInitializer(
+//    private val context: Context
+//) {
+//    actual fun init() {
+//        startKoin {
+//            androidContext(context)
+//            modules(
+//                sharedModule, platformModule()
+//            )
+//        }
+//    }
+//}

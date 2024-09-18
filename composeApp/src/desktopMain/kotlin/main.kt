@@ -12,10 +12,6 @@ fun main() = application {
         onCloseRequest = ::exitApplication,
         title = "Loop",
     ) {
-        val dao = remember {
-            getDatabaseBuilder().getDao()
-        }
-
-        NostrExample(dao = dao)
+        NostrExample()
     }
 }

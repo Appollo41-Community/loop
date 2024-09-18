@@ -8,9 +8,5 @@ fun MainViewController() = ComposeUIViewController (
         initKoin()
     }
 ) {
-    val dao = remember {
-        getDatabaseBuilder().getDao()
-    }
-
-    App(dao)
+    App()
 }

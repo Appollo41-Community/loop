@@ -26,7 +26,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.appollo41.loop.core.generateRandomString
 import com.appollo41.loop.db.AppDatabase
-import com.appollo41.loop.db.NoteDao
 import com.appollo41.loop.db.Note
 import com.appollo41.loop.networking.NostrEvent
 import com.appollo41.loop.networking.NostrIncomingMessage
@@ -50,13 +49,12 @@ import org.koin.compose.koinInject
 @Preview
 fun NostrExample(
     socketClient: SocketClient = koinInject(),
-    dao: NoteDao
+    daoNewTest: AppDatabase = koinInject()
 ) {
     val subscriptionId by remember { mutableStateOf(generateRandomString()) }
     var connected by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
 
-    val daoNew = koinInject<AppDatabase> ().getDao()
+    val daoNew = daoNewTest.getDao()
 
     suspend fun connectToRelay() {
         socketClient.connect()

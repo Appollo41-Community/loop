@@ -1,42 +1,50 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
-import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
+import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.kotlinxSerialization)
+    alias(libs.plugins.kspCompose)
+    alias(libs.plugins.room)
 }
 
 kotlin {
-    @OptIn(ExperimentalWasmDsl::class)
-    wasmJs {
-        moduleName = "composeApp"
-        browser {
-            commonWebpackConfig {
-                outputFileName = "composeApp.js"
-                devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
-                    static = (static ?: mutableListOf()).apply {
-                        // Serve sources to debug inside browser
-                        add(project.projectDir.path)
-                    }
-                }
-            }
-        }
-        binaries.executable()
+//    @OptIn(ExperimentalWasmDsl::class)
+//    wasmJs {
+//        moduleName = "composeApp"
+//        browser {
+//            commonWebpackConfig {
+//                outputFileName = "composeApp.js"
+//                devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
+//                    static = (static ?: mutableListOf()).apply {
+//                        // Serve sources to debug inside browser
+//                        add(project.projectDir.path)
+//                    }
+//                }
+//            }
+//        }
+//        binaries.executable()
+//    }
+
+    sourceSets.commonMain {
+        kotlin.srcDir("build/generated/ksp/metadata")
     }
-    
+
     androidTarget {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_17)
         }
     }
-    
+
     jvm("desktop")
+
+    task("testClasses")
     
     listOf(
         iosX64(),
@@ -55,18 +63,62 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+            implementation(libs.secp256k1.kmp.jni.android)
+            implementation(libs.ktor.client.okhttp)
+
+            //Room
+            implementation(libs.room.runtime.android)
+
+            //Koin
+            implementation(libs.koin.androidx.compose)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(compose.foundation)
-            implementation(compose.material)
+            implementation(compose.material3)
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
-            implementation(projects.shared)
+
+            // Data&Time
+            implementation(libs.kotlinx.datetime)
+
+            // TODO Delete from UI module?
+            // Ktor & Serialization
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.websockets)
+            implementation(libs.kotlinx.serialization.json)
+
+            // Coroutines
+            implementation(libs.kotlinx.coroutines.core)
+
+            // Ktor Client
+            implementation(libs.ktor.client.mock)
+
+            // Koin
+            implementation(project.dependencies.platform(libs.koin.bom))
+            implementation(libs.koin.core)
+            implementation(libs.koin.compose)
+
+            // Crypto
+            implementation(libs.secp256k1.kmp)
+
+            // Serialization
+            implementation(libs.kotlinx.serialization.json)
+
+            // Data&Time
+            implementation(libs.kotlinx.datetime)
+
+            // Room
+            implementation(libs.room.runtime)
+            implementation(libs.sqlite.bundled)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
+            implementation(libs.ktor.client.cio)
+        }
+        iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
         }
     }
 }
@@ -117,5 +169,19 @@ compose.desktop {
             packageName = "com.appollo41.loop"
             packageVersion = "1.0.0"
         }
+    }
+}
+
+dependencies {
+    add("kspCommonMainMetadata", libs.room.compiler)
+}
+
+room {
+    schemaDirectory("$projectDir/schemas")
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinCompile<*>>().configureEach {
+    if (name != "kspCommonMainKotlinMetadata" ) {
+        dependsOn("kspCommonMainKotlinMetadata")
     }
 }
